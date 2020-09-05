@@ -1,14 +1,16 @@
 import React from 'react';
 import { Form as UIForm, Segment } from 'semantic-ui-react';
 import { FormProvider, useForm } from 'react-hook-form';
-
+// components
 import FormInput from '../FormInput';
+import FormEmail from '../FormEmail';
 import FormButton from '../FormButton';
-import { emailPattern, namePattern } from '../constants';
+// etc
+import { NAME_PATTERN } from '../../constants';
 
 function Form() {
   const formMethods = useForm({
-    mode: 'onBlur',
+    mode: 'onChange',
     defaultValues: {
       firstName: '',
       lastName: '',
@@ -19,6 +21,7 @@ function Form() {
 
   const onSubmit = () => {};
   const onError = () => {};
+
   return (
     <FormProvider {...formMethods}>
       <UIForm size="large" onSubmit={formMethods.handleSubmit(onSubmit, onError)}>
@@ -34,7 +37,7 @@ function Form() {
                 message: 'This field is required',
               },
               pattern: {
-                value: new RegExp(namePattern),
+                value: new RegExp(NAME_PATTERN),
                 message: 'This field only accepts alphabetical letters'
               }
             }}
@@ -51,29 +54,13 @@ function Form() {
                 message: 'This field is required',
               },
               pattern: {
-                value: new RegExp(namePattern),
+                value: new RegExp(NAME_PATTERN),
                 message: 'This field only accepts alphabetical letters'
               }
             }}
             type="text"
           />
-          <FormInput
-            label="Email"
-            name="email"
-            id="email"
-            placeholder="Enter your email address"
-            rules={{
-              required: {
-                value: true,
-                message: 'This field is required',
-              },
-              pattern: {
-                value: new RegExp(emailPattern),
-                message: 'Please enter a valid email address',
-              },
-            }}
-            type="text"
-          />
+          <FormEmail />
           <FormInput
             label="Password"
             name="password"
