@@ -1,16 +1,20 @@
-import React from 'react';
-import { Form as UIForm, Segment } from 'semantic-ui-react';
+import React, { useCallback, useState } from 'react';
+import { Form as UIForm, Message, Segment } from 'semantic-ui-react';
 import { FormProvider, useForm } from 'react-hook-form';
 // components
 import FormInput from '../FormInput';
 import FormEmail from '../FormEmail';
 import FormButton from '../FormButton';
+// hooks
+import useCreateAccount from '../../hooks/useCreateAccount';
 // etc
 import { NAME_PATTERN } from '../../constants';
 
 function Form() {
+  const [emailStatus, setEmailStatus] = useState(null);
+  const [isCreatingAccount, createAccount, createAccountStatus] = useCreateAccount();
   const formMethods = useForm({
-    mode: 'onChange',
+    mode: 'onSubmit',
     defaultValues: {
       firstName: '',
       lastName: '',
@@ -19,12 +23,23 @@ function Form() {
     }
   });
 
-  const onSubmit = () => {};
-  const onError = () => {};
+  const onSubmit = (value) => {
+    createAccount(value);
+  };
+
+  const handleCheckUser = useCallback((status) => {
+    setEmailStatus(status);
+  }, []);
 
   return (
     <FormProvider {...formMethods}>
-      <UIForm size="large" onSubmit={formMethods.handleSubmit(onSubmit, onError)}>
+      <UIForm
+        size="large"
+        onSubmit={formMethods.handleSubmit(onSubmit)}
+        warning={emailStatus === 'EXISTS'}
+        error={createAccountStatus.code === 400}
+        success={createAccountStatus.code === 'ACTIVE'}
+      >
         <Segment>
           <FormInput
             label="Firstname"
@@ -60,12 +75,19 @@ function Form() {
             }}
             type="text"
           />
-          <FormEmail />
+          <FormEmail onCheckUser={handleCheckUser} />
+          {emailStatus === 'EXISTS' && (
+            <Message
+              warning
+              header="Opps!"
+              content="This email address has already been registered."
+            />
+          )}
           <FormInput
             label="Password"
             name="password"
             id="password"
-            placeholder="Enter your password address"
+            placeholder="Enter your password"
             rules={{
               required: {
                 value: true,
@@ -74,7 +96,27 @@ function Form() {
             }}
             type="password"
           />
-          <FormButton fluid size="large" color="violet">
+          {createAccountStatus.code === 400 && (
+            <Message
+              error
+              header="We're sorry!"
+              content={createAccountStatus.message}
+            />
+          )}
+          {createAccountStatus.code === 'ACTIVE' && (
+            <Message
+              success
+              header="Your user registration was successful"
+              content={createAccountStatus.message}
+            />
+          )}
+          <FormButton
+            fluid
+            size="large"
+            color="violet"
+            loading={isCreatingAccount}
+            disabled={isCreatingAccount}
+          >
             Create my account
           </FormButton>
         </Segment>

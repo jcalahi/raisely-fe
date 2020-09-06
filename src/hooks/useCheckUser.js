@@ -1,26 +1,31 @@
 import { useCallback, useState } from 'react';
+import axios from 'axios';
 import { API, CAMPAIGN_UUID } from '../constants';
 
 export default function useCheckUser() {
-  const [isChecking, setIsCheckingUser] = useState(false);
-  const checkUser = useCallback(async () => {
+  const [isCheckingUser, setIsCheckingUser] = useState(false);
+  const [userStatus, setUserStatus] = useState(null);
+
+  const checkUser = useCallback(async (email) => {
     try {
       setIsCheckingUser(true);
-      const response = await fetch(`${API}/check-user`, {
+      const { data } = await axios({
         method: 'POST',
-        body: JSON.stringify({
+        url: `${API}/check-user`,
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        data: JSON.stringify({
           campaignUuid: CAMPAIGN_UUID,
-          data: {
-            email: 'test@test.com'
-          }
+          data: { email }
         })
       });
-      console.log(response);
+      setUserStatus(data.data.status);
     } catch (error) {
-
+      console.log(error);
     } finally {
       setIsCheckingUser(false);
     }
   }, []);
-  return [ isChecking, checkUser ];
+  return [ isCheckingUser, checkUser, userStatus, setUserStatus ];
 }
