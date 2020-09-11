@@ -1,3 +1,5 @@
+Available for testing in https://codesandbox.io/s/raisely-fe-task-rqbxh
+
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
 ## Available Scripts
